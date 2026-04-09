@@ -1,0 +1,27 @@
+# Virtual environment — recreatable, no need to track
+.venv/
+
+# Python cache files — auto-generated, not source code
+__pycache__/
+*.pyc
+*.pyo
+
+# Package build artifacts
+*.egg-info/
+dist/
+build/
+
+# Jupyter auto-save files
+.ipynb_checkpoints/
+
+# Output rasters — too large for Git, use Google Drive or DVC instead
+outputs/
+
+# Earth Engine credentials — NEVER commit these
+.config/earthengine/
+
+# Secrets file — NEVER commit this
+.env
+
+# macOS folder metadata
+.DS_Store

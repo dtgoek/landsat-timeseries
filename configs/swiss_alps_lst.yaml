@@ -1,0 +1,51 @@
+project:
+  name: swiss_alps_lst
+  output_dir: outputs/
+
+# Area of interest: bounding box in WGS84 decimal degrees (Swiss Alps)
+aoi:
+  xmin: 5.41
+  xmax: 10.97
+  ymin: 45.34
+  ymax: 47.97
+  crs: EPSG:32632   # output projection: UTM Zone 32N
+
+# Time range for the Landsat archive
+time:
+  start: "1984-01-01"
+  end: "2022-12-31"
+
+# Which Landsat sensors to include in the merged collection
+sensors:
+  use: ["L5", "L7", "L8"]
+
+# Cloud masking and preprocessing settings
+masking:
+  cloud_bit: 3              # QA_PIXEL bit 3 = cloud
+  cloud_confidence_bit: 9   # QA_PIXEL bit 9 = medium+ cloud confidence
+  lst_min_celsius: -60      # physical lower bound for LST
+  lst_max_celsius: 60       # physical upper bound for LST
+  remove_overlap: true      # remove pixels duplicated across adjacent scenes
+
+# Harmonic regression model settings
+model:
+  type: harmonic
+  target_band: SurfT         # the band we are fitting the model to
+  harmonics: 1               # number of harmonic cycles (1 = annual cycle)
+  time_origin: "1970-01-01"  # reference date for time variable t
+  include_trend: true        # include a linear trend component (b1)
+
+# Export settings
+export:
+  destination: drive    # 'drive' or 'asset'
+  folder: EE_LST_timeseries
+  scale: 30             # Landsat native resolution in metres
+  crs: EPSG:32632
+  max_pixels: 1.0e12
+  products:
+    malst: true
+    trend: true
+    amplitude: true
+    phase: true
+    rmse: true
+    counts: true

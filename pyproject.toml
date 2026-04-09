@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rs-timeseries"
+version = "0.1.0"
+description = "Landsat time series analysis with Google Earth Engine"
+requires-python = ">=3.8"
+dependencies = [
+    "earthengine-api>=0.1.400",
+    "geopandas>=0.13",
+    "pandas>=1.5",
+    "numpy>=1.24",
+    "pyyaml>=6.0",
+    "matplotlib>=3.6",
+    "python-dotenv>=0.21",
+    "pytest>=7.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rs_timeseries"]

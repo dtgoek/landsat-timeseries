@@ -136,13 +136,21 @@ def preprocess_collection(
         config: Project configuration dictionary.
 
     Returns:
-        Preprocessed ImageCollection with SurfT and Emis bands.
+        Preprocessed ImageCollection with SurfT, Emis, and cloud bands.
     """
     def scale_and_mask(image):
-        # ee.Algorithms.If is the GEE equivalent of Python's if/else.
-        # We need it here because the condition is evaluated server-side
-        # (in the GEE cloud), not locally in Python.
-        has_b6 = image.bandNames().contains("ST_B6")
+        # --- Cloud flag from raw QA before any masking ---
+        qa = image.select("QA_PIXEL")
+        cloud_flag = (
+            qa.bitwiseAnd(1 << 3)        # cloud bit
+            .Or(qa.bitwiseAnd(1 << 4))   # cloud shadow bit
+            .gt(0)
+            .rename("cloud")
+            .uint8()
+        )
+
+        # --- Sensor-aware scaling ---
+        has_b6  = image.bandNames().contains("ST_B6")
         has_b10 = image.bandNames().contains("ST_B10")
 
         scaled = ee.Algorithms.If(
@@ -152,17 +160,21 @@ def preprocess_collection(
         )
         scaled = ee.Image(scaled)
 
+        # --- Sensor-aware cloud masking ---
         masked = ee.Algorithms.If(
             has_b6,
             mask_clouds_l457(scaled, config),
             ee.Algorithms.If(has_b10, mask_clouds_l8(scaled, config), scaled),
         )
-        return ee.Image(masked)
+        masked = ee.Image(masked)
+
+        # --- Attach cloud flag to the masked image ---
+        return masked.addBands(cloud_flag.unmask(1))
+
 
     preprocessed = collection.map(scale_and_mask)
 
     if config["masking"]["remove_overlap"]:
-        # Find pairs of images from the same path acquired within 100 seconds
         overlap_filter = ee.Filter.And(
             ee.Filter.equals("WRS_PATH", None, "WRS_PATH"),
             ee.Filter.greaterThan(
@@ -180,3 +192,19 @@ def preprocess_collection(
         preprocessed = has_match.map(remove_overlap)
 
     return preprocessed
+
+def add_cloud_flag(image: ee.Image) -> ee.Image:
+    """Add a binary cloud band before masking (1 = cloudy/shadow, 0 = clear).
+
+    Must be called before apply_cloud_mask() — once the mask is applied the
+    QA information is no longer recoverable from the pixel values.
+    """
+    qa = image.select("QA_PIXEL")
+    cloud = (
+        qa.bitwiseAnd(1 << 3)       # cloud bit
+        .Or(qa.bitwiseAnd(1 << 4))  # cloud shadow bit
+        .gt(0)                       # cast to 0/1 integer
+        .rename("cloud")
+        .uint8()
+    )
+    return image.addBands(cloud)

@@ -49,3 +49,9 @@ export:
     phase: true
     rmse: true
     counts: true
+    std: true
+    variance: true
+    b0_raw: true
+    b1_raw: true
+    b2_raw: true
+    b3_raw: true

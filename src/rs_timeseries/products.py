@@ -64,25 +64,61 @@ def compute_counts(collection: ee.ImageCollection, target_band: str) -> ee.Image
         .rename("Counts")
     )
 
+def compute_std(collection: ee.ImageCollection, target_band: str) -> ee.Image:
+    """Per-pixel standard deviation of raw LST observations.
+
+    Measures the total spread of LST values across the time series,
+    independent of the harmonic model fit.
+    Unit: Kelvin. Scale factor: 100.
+    """
+    return (
+        collection.select(target_band)
+        .reduce(ee.Reducer.stdDev())
+        .multiply(100)
+        .uint16()
+        .rename("Std")
+    )
+
+
+def compute_variance(collection: ee.ImageCollection, target_band: str) -> ee.Image:
+    """Per-pixel variance of raw LST observations.
+
+    Variance = Std². Useful as an input feature for downstream
+    machine learning or as a weight in spatial analysis.
+    Unit: K². Scale factor: 10.
+    """
+    return (
+        collection.select(target_band)
+        .reduce(ee.Reducer.variance())
+        .multiply(10)
+        .uint16()
+        .rename("Variance")
+    )
+
+
+def export_b0_raw(b0: ee.Image) -> ee.Image:
+    """Raw b0 coefficient in Kelvin, float32."""
+    return b0.float().rename("b0_raw")
+
+def export_b1_raw(b1: ee.Image) -> ee.Image:
+    """Raw b1 trend coefficient in K/year, float32."""
+    return b1.float().rename("b1_raw")
+
+def export_b2_raw(b2: ee.Image) -> ee.Image:
+    """Raw cosine coefficient, float32."""
+    return b2.float().rename("b2_raw")
+
+def export_b3_raw(b3: ee.Image) -> ee.Image:
+    """Raw sine coefficient, float32."""
+    return b3.float().rename("b3_raw")
+
 
 def derive_all_products(
     coefficients: ee.Image,
     fitted_collection: ee.ImageCollection,
     config: dict,
 ) -> dict:
-    """Compute all requested output products.
-
-    Only products that are set to true in the config are computed.
-    This avoids unnecessary GEE computation.
-
-    Args:
-        coefficients: Image with b0, b1, b2, b3 bands.
-        fitted_collection: Collection with 'squared_error' band added.
-        config: Project configuration dictionary.
-
-    Returns:
-        Dictionary mapping product name to ee.Image.
-    """
+    """Compute all requested output products."""
     target_band = config["model"]["target_band"]
     requested = config["export"]["products"]
 
@@ -104,22 +140,9 @@ def derive_all_products(
         products["rmse"] = compute_rmse(fitted_collection)
     if requested.get("counts"):
         products["counts"] = compute_counts(fitted_collection, target_band)
+    if requested.get("std"):                                      # ← new
+        products["std"] = compute_std(fitted_collection, target_band)
+    if requested.get("variance"):                                 # ← new
+        products["variance"] = compute_variance(fitted_collection, target_band)
 
     return products
-
-
-def export_b0_raw(b0: ee.Image) -> ee.Image:
-    """Raw b0 coefficient in Kelvin, float32."""
-    return b0.float().rename("b0_raw")
-
-def export_b1_raw(b1: ee.Image) -> ee.Image:
-    """Raw b1 trend coefficient in K/year, float32."""
-    return b1.float().rename("b1_raw")
-
-def export_b2_raw(b2: ee.Image) -> ee.Image:
-    """Raw cosine coefficient, float32."""
-    return b2.float().rename("b2_raw")
-
-def export_b3_raw(b3: ee.Image) -> ee.Image:
-    """Raw sine coefficient, float32."""
-    return b3.float().rename("b3_raw")

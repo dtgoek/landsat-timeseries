@@ -1,0 +1,56 @@
+project:
+  name: area_harmonic_beta_coeffs
+  output_dir: outputs/
+
+aoi:
+  xmin: 5.41
+  xmax: 10.97
+  ymin: 45.34
+  ymax: 47.97
+  crs: EPSG:32632
+
+time:
+  start: "1984-01-01"
+  end: "2022-12-31"
+
+sensors:
+  use: ["L5", "L7", "L8"]
+
+bands:
+  optical: ["Blue", "Green", "Red", "NIR", "SWIR1", "SWIR2"]
+
+masking:
+  cloud_bit: 4
+  cloud_confidence_bit: 9
+  lst_min_celsius: -60
+  lst_max_celsius: 60
+  remove_overlap: true
+  apply_cloud_mask: true
+
+model:
+  type: harmonic
+  target_band: SurfT
+  harmonics: 1
+  time_origin: "1970-01-01"
+  include_trend: true
+
+export:
+  destination: asset
+  asset_root: projects/goekdeniz/assets/landsat_timeseries
+  folder: EE_LST_timeseries
+  scale: 30
+  crs: EPSG:32632
+  max_pixels: 1.0e12
+  products:
+    malst: false
+    trend: false
+    amplitude: false
+    phase: false
+    rmse: false
+    counts: false
+    std: false
+    variance: false
+    b0_raw: true
+    b1_raw: true
+    b2_raw: true
+    b3_raw: true

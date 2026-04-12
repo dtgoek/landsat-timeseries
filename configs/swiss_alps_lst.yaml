@@ -19,6 +19,10 @@ time:
 sensors:
   use: ["L5", "L7", "L8"]
 
+# Which bands to include
+bands:
+  optical:  ["Blue", "Green", "Red", "NIR", "SWIR1", "SWIR2"]
+
 # Cloud masking and preprocessing settings
 masking:
   cloud_bit: 3              # QA_PIXEL bit 3 = cloud
@@ -26,6 +30,7 @@ masking:
   lst_min_celsius: -60      # physical lower bound for LST
   lst_max_celsius: 60       # physical upper bound for LST
   remove_overlap: true      # remove pixels duplicated across adjacent scenes
+  apply_cloud_mask: true   # false = export all LST + cloud flag
 
 # Harmonic regression model settings
 model:
@@ -41,7 +46,7 @@ export:
   folder: EE_LST_timeseries
   scale: 30             # Landsat native resolution in metres
   crs: EPSG:32632
-  max_pixels: 1.0e12
+  max_pixels: 1000000000000
   products:
     malst: true
     trend: true

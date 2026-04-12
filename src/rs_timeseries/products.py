@@ -113,6 +113,7 @@ def export_b3_raw(b3: ee.Image) -> ee.Image:
     return b3.float().rename("b3_raw")
 
 
+
 def derive_all_products(
     coefficients: ee.Image,
     fitted_collection: ee.ImageCollection,

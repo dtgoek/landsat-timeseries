@@ -38,19 +38,24 @@ def load_landsat_collection(
     )
 
 
+
 def build_merged_collection(config: dict, aoi: ee.Geometry) -> ee.ImageCollection:
     """Build and merge Landsat collections from all requested sensors."""
     start = config["time"]["start"]
     end = config["time"]["end"]
     sensors = config["sensors"]["use"]
 
-    collections = [
-        load_landsat_collection(sensor, start, end, aoi)
-        for sensor in sensors
-    ]
+    # STAGE 1: Load RAW collections (ALL bands → preprocessing needs them)
+    collections = []
+    for sensor in sensors:
+        col = load_landsat_collection(sensor, start, end, aoi)
+        collections.append(col)  # ← NO .select() here!
 
-    merged = collections[0]        # ← must start with first collection
+    # Merge raw collections
+    merged = collections[0]
     for col in collections[1:]:
         merged = merged.merge(col)
 
+    # Let preprocess_collection() handle scaling/masking first
+    # Then select final bands after in your notebook or extraction
     return merged.sort("system:time_start")

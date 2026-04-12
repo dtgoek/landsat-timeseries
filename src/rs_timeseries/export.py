@@ -30,17 +30,20 @@ def export_image(image: ee.Image, name: str, config: dict) -> ee.batch.Task:
             folder=export_cfg["folder"],
             scale=export_cfg["scale"],
             crs=export_cfg["crs"],
-            maxPixels=int(export_cfg["max_pixels"]),
+            maxPixels=int(float(export_cfg["max_pixels"])),
             fileFormat="GeoTIFF",
         )
     elif destination == "asset":
-        asset_id = f"projects/your-project/assets/{name}"
+        asset_root = export_cfg["asset_root"]
+        asset_id = f"{asset_root}/{name}"
+
         task = ee.batch.Export.image.toAsset(
             image=image.clip(region),
             description=name,
             assetId=asset_id,
             scale=export_cfg["scale"],
-            maxPixels=int(export_cfg["max_pixels"]),
+            crs=export_cfg["crs"],
+            maxPixels=int(float(export_cfg["max_pixels"])),
         )
     else:
         raise ValueError(f"Unknown export destination: {destination}")

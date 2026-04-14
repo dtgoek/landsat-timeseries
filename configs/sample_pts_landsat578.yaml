@@ -2,13 +2,11 @@ project:
   name: swiss_alps_lst
   output_dir: outputs/
 
-# Area of interest: bounding box in WGS84 decimal degrees (Swiss Alps)
+# Area of interest: external GeoJSON file
 aoi:
-  xmin: 5.41
-  xmax: 10.97
-  ymin: 45.34
-  ymax: 47.97
-  crs: EPSG:32632   # output projection: UTM Zone 32N
+  type: geojson_file
+  path: "data/raw/imis_stations.geojson"
+  crs: EPSG:4326  # WGS84 for GeoJSON
 
 # Time range for the Landsat archive
 time:

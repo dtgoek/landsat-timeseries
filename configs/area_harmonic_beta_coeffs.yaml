@@ -40,7 +40,7 @@ export:
   folder: EE_LST_timeseries
   scale: 30
   crs: EPSG:32632
-  max_pixels: 1.0e12
+  max_pixels: 1000000000000
   products:
     malst: false
     trend: false

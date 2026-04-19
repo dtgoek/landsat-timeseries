@@ -51,3 +51,9 @@ The current version is focused on:
 
 ## next
 - implement Theil–Sen estimator
+
+
+Code is based on the Study "Land surface temperature trends derived from Landsat imagery in the Swiss Alps", https://doi.org/10.5194/tc-18-5259-2024
+
+Related Data/Code Publication "Landsat-derived spatiotemporal variations of land surface temperature", https://doi.org/10.5880/GFZ.3.3.2023.005
+

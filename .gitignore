@@ -1,5 +1,6 @@
 # Virtual environment — recreatable, no need to track
 .venv/
+.env
 
 # Python cache files — auto-generated, not source code
 __pycache__/
@@ -32,6 +33,8 @@ outputs/
 data/raw/
 data/interim/
 data/processed/
+
+outputs
 
 # Keep folder structure
 !data/raw/.gitkeep

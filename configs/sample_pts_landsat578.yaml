@@ -4,8 +4,10 @@ project:
 
 # Area of interest: external GeoJSON file
 aoi:
-  type: geojson_file
-  path: "data/raw/imis_stations.geojson"
+  xmin: 5.41
+  xmax: 10.97
+  ymin: 45.34
+  ymax: 47.97
   crs: EPSG:4326  # WGS84 for GeoJSON
 
 # Time range for the Landsat archive
@@ -27,8 +29,8 @@ masking:
   cloud_confidence_bit: 9   # QA_PIXEL bit 9 = medium+ cloud confidence
   lst_min_celsius: -60      # physical lower bound for LST
   lst_max_celsius: 60       # physical upper bound for LST
-  remove_overlap: true      # remove pixels duplicated across adjacent scenes
-  apply_cloud_mask: true   # false = export all LST + cloud flag
+  remove_overlap: false      # remove pixels duplicated across adjacent scenes
+  apply_cloud_mask: false   # false = export all LST + cloud flag
 
 # Harmonic regression model settings
 model:
